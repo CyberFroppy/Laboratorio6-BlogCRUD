@@ -1,7 +1,7 @@
 let express = require('express');
 let morgan = require('morgan');
 let bodyParser = require('body-parser');
-//let jsonParser = bodyParser.json();
+let jsonParser = bodyParser.json();
 let uuidv4 = require('uuid/v4');
 
 let app = express();
@@ -20,12 +20,14 @@ app.listen(8080,function(){
 console.log("Server is running at port 8080")
 });
 //Arreglo de comentarios
-const listaComentarios = [];
+const listaComentarios = [createComentario("Blog 1","El contenido del Blog 1","Carlos Perez"),
+                        createComentario("Blog 2", "El contenido del Blog 2", "Jorge Gutierrez"),
+                        createComentario("Blog 3","El contenido del Blog 3","Maria Ayala")];
 
 //Formato de comentarios
 function createComentario(title,content,author){
     const id = uuidv4();
-    const date = Date.now();
+    const date = new Date();
     const comentario = {
         id:id,
         titulo: title,     
@@ -59,8 +61,9 @@ app.get("/blog-api/comentarios-por-autor",(req,res)=>{
         res.status(406).send();
     }
 })
-//POST /blog-api/nuevo-comentario
+//Metodo Post para Agregar un comentario nuevo
 app.post('/blog-api/nuevo-comentario',(req,res)=>{
+    console.log(req.body);
     let title = req.body.titulo;
     let author = req.body.autor;
     let content = req.body.contenido;
@@ -71,12 +74,13 @@ app.post('/blog-api/nuevo-comentario',(req,res)=>{
         res.status(200).send();
     }
     else{
-        res.status(406).send();
         res.statusMessage = "El comentario no tiene todos los parametros"
+        res.status(406).send();
     }
 })
+//Metodo Delete para borrar un comentario
 app.delete('/blog-api/remover-comentario/:id',(req,res)=>{
-    let id = req.params.id;
+    let { id } = req.params;
     for(let i = 0; i <= listaComentarios.length; i++){
         if(listaComentarios[i].id == id){
             listaComentarios.splice(i, 1);
@@ -90,5 +94,44 @@ app.delete('/blog-api/remover-comentario/:id',(req,res)=>{
 })
 
 app.put('/blog-api/actualizar-comentario/:id',(req,res)=>{
-    
-})
+    let parId= req.params.id;
+    let bodyId = req.body.id;
+    let { titulo, contenido, autor } = req.body;
+
+    if(!parId || !bodyId){
+        res.status(406).json({
+            message: "No existe el parametro",
+            status: 406
+        });
+    }
+    if(bodyId != parId){
+        res.status(409).json({
+            message: "El id no coincide",
+            status: 409
+        })
+    }
+    if(!titulo && !contenido && !autor){
+        res.status(406).json({
+            message:"Campo vacio",
+            status:406
+        })
+    }
+    listaComentarios.forEach(element => {
+        if(element.id == bodyId){
+            if(titulo){
+                element.titulo = titulo; 
+            }
+            if(contenido){
+                element.contenido = contenido;
+            }
+            if(autor){
+                element.autor = autor;
+            }
+            res.status(202).json({
+                message: "Cambio realizado con exito",
+                status: 202
+            })
+            return element;
+        }
+    });
+});
