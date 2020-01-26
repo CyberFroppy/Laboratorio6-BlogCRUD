@@ -99,22 +99,19 @@ app.put('/blog-api/actualizar-comentario/:id',(req,res)=>{
     let { titulo, contenido, autor } = req.body;
 
     if(!parId || !bodyId){
-        res.status(406).json({
-            message: "No existe el parametro",
-            status: 406
-        });
+        console.log(parId);
+        console.log(bodyId);
+        res.statusMessage = "El id no coincide"
+        res.status(406).send();
+
     }
     if(bodyId != parId){
-        res.status(409).json({
-            message: "El id no coincide",
-            status: 409
-        })
+        res.status(409).send();
+        res.statusMessage = "El id no coincide";
     }
     if(!titulo && !contenido && !autor){
-        res.status(406).json({
-            message:"Campo vacio",
-            status:406
-        })
+        res.status(406).send();
+        res.statusMessage = "Campo Vacio";
     }
     listaComentarios.forEach(element => {
         if(element.id == bodyId){
@@ -127,10 +124,8 @@ app.put('/blog-api/actualizar-comentario/:id',(req,res)=>{
             if(autor){
                 element.autor = autor;
             }
-            res.status(202).json({
-                message: "Cambio realizado con exito",
-                status: 202
-            })
+            res.status(202).send();
+            res.statusMessage = "Cambio realizado con exito";
             return element;
         }
     });

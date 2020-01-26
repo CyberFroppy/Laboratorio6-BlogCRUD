@@ -1,6 +1,8 @@
 let url = 'http://localhost:8080/blog-api';
 let input;
 let post;
+let borrarCom;
+let editarCom;
 function allComments(){
     $.ajax({
         url:(url+'/comentarios'),
@@ -16,18 +18,19 @@ function allComments(){
     });
 }
 function displayComments(responseJSON){
+    console.log(responseJSON);
     let resultados = document.getElementsByClassName("resultados")[0];
     resultados.innerHTML = "";
     responseJSON.map((agregar,index)=>{
-     resultados.innerHTML += `
-    <h4>Comentario ${index}</h4>
-    <p>Id: ${agregar.id}</p>
-    <p>Titulo: ${agregar.titulo}</p>
-    <p>Contenido: ${agregar.contenido}</p>
-    <p>Autor: ${agregar.autor}</p>
-    <p>Fecha: ${agregar.fecha}</p>
-    <p></p>
-    `;
+        resultados.innerHTML += `
+        <h4>Comentario ${index}</h4>
+        <p>Id: ${agregar.id}</p>
+        <p>Titulo: ${agregar.titulo}</p>
+        <p>Contenido: ${agregar.contenido}</p>
+        <p>Autor: ${agregar.autor}</p>
+        <p>Fecha: ${agregar.fecha}</p>
+        <p></p>
+        `;
     });
     console.log(resultados);
 }
@@ -63,19 +66,6 @@ function comentariosxAutor(){
     })
 }
 function postComentario(coment){
-   /*fetch(url + '/nuevo-comentario',{
-       method:"POST",
-       headers:{
-           Accept: 'application/json',
-           'Content-Type':'application/json',
-       },
-       body:JSON.stringify(coment)
-       
-   })
-   .then(coment=>coment.json()).then(agregarComent=> {
-    displayComments(agregarComent);
-    blankInputs();
-   });*/
     console.log(coment)
     $.ajax({
         url:(url + '/nuevo-comentario'),
@@ -83,13 +73,13 @@ function postComentario(coment){
         data:JSON.stringify(coment),
         contentType:"application/json; charset=utf-8",
         success: function(responseJSON){
-            displayComments(responseJSON);
+            allComments();
             blankInputs();
         },
         error:function(err){
             console.log(err);
         }      
-        });
+    });
 }
 function agregarComentario(){
     let form = document.getElementById('content');
@@ -97,25 +87,62 @@ function agregarComentario(){
         event.preventDefault();
         post = {
             titulo: $('#inputTitle').val(),
-            contenid: = $('#inputContent').val(),
+            contenido:  $('#inputContent').val(),
             autor:  $('#inputAutor').val()
         }   
         postComentario(post);
     })
 }
+function editarComentario(coment,identificador){
+    console.log(coment)
+    $.ajax({
+        url:(url + '/actualizar-comentario/'+identificador),
+        type:"PUT",
+        data:JSON.stringify(coment),
+        contentType:"application/json; charset=utf-8",
+        success: function(responseJSON){
+            allComments();
+            blankInputs();
+        },
+        error:function(err){
+            console.log(err);
+        }      
+    });
+}
 function editar(){
     let form = document.getElementById('author');
     form.addEventListener("submit",(event)=>{
         event.preventDefault();
-        allComments();
-        
+        input = $("#identificadorComentario").val();
+        editarCom = {
+            id: $('#identificadorComentario').val(),
+            titulo: $('#inputTitle').val(),
+            contenido:  $('#inputContent').val(),
+            autor:  $('#inputAutor').val()
+        }  
+        editarComentario(editarCom,input);
     })
+}
+function eliminarComentario(idComentario){
+    $.ajax({
+        url:(url + '/remover-comentario/'+idComentario),
+        type:"DELETE",
+        success: function(responseJSON){
+            console.log("El comentario se ha eliminado con exito!");
+            allComments();
+            blankInputs();
+        },
+        error:function(err){
+            console.log(err);
+        }      
+    });
 }
 function borrar(){
     let form = document.getElementById('date');
     form.addEventListener("submit",(event)=>{
         event.preventDefault();
-        allComments();
+        borrarCom = $("#identificadorComentario").val();
+        eliminarComentario(borrarCom);
     })
 }
 function blankInputs(){

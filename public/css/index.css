@@ -1,0 +1,19 @@
+*{
+    font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+}
+h1{
+    text-align: center;
+}
+form{
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+button{
+    margin: 5px 50px;
+    text-align: center;
+}
+input{
+    justify-content: flex-start;
+    margin: 5px 50px;
+}
